@@ -7,7 +7,7 @@ async function bootstrap() {
   const app = createApp();
 
   app.listen(env.port, () => {
-    console.log(`HivePulse API running on port ${env.port}`);
+    console.log(`API listening on port ${env.port}`);
   });
 }
 

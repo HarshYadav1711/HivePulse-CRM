@@ -24,5 +24,4 @@ COPY --from=builder /app/backend/dist ./backend/dist
 COPY --from=builder /app/backend/node_modules ./backend/node_modules
 
 WORKDIR /app/backend
-EXPOSE 4000
 CMD ["node", "dist/index.js"]

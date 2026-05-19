@@ -1,122 +1,92 @@
 # HivePulse CRM
 
-Internal sales lead management platform for sales teams. Built with a TypeScript monorepo, Express API, React dashboard, and MongoDB.
-
-## Features
-
-- JWT authentication (register, login, protected routes, bcrypt hashing)
-- Role-based access: **Admin** and **Sales User** (only admins can delete leads)
-- Lead CRUD with status (`New`, `Contacted`, `Qualified`, `Lost`) and source (`Website`, `Instagram`, `Referral`)
-- Combined server-side filtering: status, source, name/email search, sort (latest/oldest)
-- Pagination (10 per page) with response metadata
-- Debounced search on the dashboard
-- CSV export respecting active filters
-- Responsive UI with loading skeletons, empty states, validation, and dark mode
+TypeScript monorepo foundation for a CRM product. Includes a React frontend, Express API, shared types, Docker Compose, and environment-driven configuration—no business features yet.
 
 ## Tech stack
 
-| Layer    | Stack                                      |
-| -------- | ------------------------------------------ |
-| Frontend | React 19, TypeScript, TailwindCSS, Vite  |
-| Backend  | Node.js, Express 5, TypeScript, Mongoose   |
-| Database | MongoDB                                    |
-| Shared   | `@hivepulse/shared` types & validation     |
+| Layer    | Stack                          |
+| -------- | ------------------------------ |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS |
+| Backend  | Node.js, Express 5, TypeScript, Mongoose |
+| Shared   | `@hivepulse/shared`            |
+| Tooling  | ESLint 9 (flat config), Prettier |
 
-## Quick start (local)
-
-### Prerequisites
+## Prerequisites
 
 - Node.js 20+
-- MongoDB running locally (or use Docker for Mongo only)
+- npm 10+
+- MongoDB (local or via Docker Compose)
 
-### 1. Install dependencies
+## Setup
 
 ```bash
 npm install
-```
-
-### 2. Environment
-
-```bash
 cp .env.example .env
 ```
 
-Edit `.env` if needed. Default API: `http://localhost:4000`, frontend: `http://localhost:5173`.
+Set every variable in `.env` (no defaults for URLs, ports, or secrets). Example for local development:
 
-### 3. Seed sample data (optional)
-
-```bash
-npm run seed -w backend
+```env
+MONGO_URI=mongodb://127.0.0.1:27017/hivepulse
+MONGO_PORT=27017
+PORT=4000
+NODE_ENV=development
+CORS_ORIGIN=http://127.0.0.1:5173
+API_PREFIX=/api
+VITE_API_URL=http://127.0.0.1:4000/api
+VITE_API_BASE_PATH=/api
+VITE_DEV_PROXY_TARGET=http://127.0.0.1:4000
+FRONTEND_PORT=5173
 ```
 
-Demo accounts:
+## Scripts
 
-| Role  | Email                 | Password    |
-| ----- | --------------------- | ----------- |
-| Admin | admin@hivepulse.io    | Admin123!   |
-| Sales | sales@hivepulse.io    | Sales123!   |
-
-### 4. Run development
-
-```bash
-npm run dev
-```
-
-- API: http://localhost:4000/api/health
-- App: http://localhost:5173
+| Command            | Description                          |
+| ------------------ | ------------------------------------ |
+| `npm run dev`      | Start API and frontend concurrently  |
+| `npm run build`    | Build shared, backend, and frontend  |
+| `npm run lint`     | Lint all workspaces                  |
+| `npm run format`   | Format with Prettier                 |
+| `npm run typecheck`| Typecheck without emitting           |
 
 ## Docker
 
-Run the full stack:
-
 ```bash
-docker compose up --build
+docker compose --env-file .env up --build
 ```
 
-- Frontend: http://localhost:5173
-- API: http://localhost:4000/api
-
-Set `JWT_SECRET` in your environment before production use.
+All services read from `.env` via `env_file` and variable substitution.
 
 ## Project structure
 
 ```
-├── backend/           # Express API
-│   └── src/modules/   # auth, leads
-├── frontend/          # React dashboard
-├── packages/shared/   # shared types & constants
+hivepulse-crm/
+├── backend/
+│   └── src/
+│       ├── config/          # env, database
+│       ├── middleware/      # errors, validation
+│       ├── modules/         # feature modules (health starter)
+│       ├── routes/          # route registration
+│       └── utils/           # API helpers
+├── frontend/
+│   └── src/
+│       ├── components/layout/
+│       ├── lib/             # env, api client
+│       ├── pages/
+│       └── routes/
+├── packages/shared/         # shared types & constants
 ├── docker-compose.yml
-└── .env.example
+├── eslint.config.mjs        # shared ESLint base
+└── tsconfig.base.json
 ```
 
-## API overview
+## Extending
 
-Base URL: `/api`
+**Backend:** add a module under `backend/src/modules/<name>/`, export routes, register in `backend/src/routes/index.ts`.
 
-| Method | Endpoint           | Auth | Description              |
-| ------ | ------------------ | ---- | ------------------------ |
-| POST   | `/auth/register`   | —    | Create account           |
-| POST   | `/auth/login`      | —    | Sign in                  |
-| GET    | `/auth/me`         | ✓    | Current user             |
-| GET    | `/leads`           | ✓    | List (filter/paginate)   |
-| GET    | `/leads/export`    | ✓    | CSV export               |
-| GET    | `/leads/:id`       | ✓    | Get one lead             |
-| POST   | `/leads`           | ✓    | Create lead              |
-| PATCH  | `/leads/:id`       | ✓    | Update lead              |
-| DELETE | `/leads/:id`       | Admin| Delete lead              |
+**Frontend:** add pages under `frontend/src/pages/`, register routes in `frontend/src/routes/index.tsx`.
 
-Query params for `GET /leads` and export: `page`, `limit` (default 10), `status`, `source`, `search`, `sort` (`latest` | `oldest`).
-
-See [docs/API.md](docs/API.md) for request/response examples.
-
-## Scripts
-
-| Command              | Description                    |
-| -------------------- | ------------------------------ |
-| `npm run dev`        | Start API + frontend           |
-| `npm run build`      | Build all workspaces           |
-| `npm run seed -w backend` | Seed database           |
-| `npm run lint`       | Lint backend and frontend      |
+**Shared:** add types and constants to `packages/shared/src/`, run `npm run build -w @hivepulse/shared`.
 
 ## License
 

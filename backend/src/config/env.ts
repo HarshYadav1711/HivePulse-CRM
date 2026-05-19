@@ -4,20 +4,27 @@ import path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
 dotenv.config();
 
-function requireEnv(key: string, fallback?: string): string {
-  const value = process.env[key] ?? fallback;
+function requireEnv(key: string): string {
+  const value = process.env[key]?.trim();
   if (!value) {
     throw new Error(`Missing required environment variable: ${key}`);
   }
   return value;
 }
 
+function requirePort(key: string): number {
+  const port = Number.parseInt(requireEnv(key), 10);
+  if (!Number.isFinite(port) || port < 1 || port > 65535) {
+    throw new Error(`Invalid port in environment variable: ${key}`);
+  }
+  return port;
+}
+
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
-  port: parseInt(process.env.PORT ?? '4000', 10),
-  mongoUri: requireEnv('MONGO_URI', 'mongodb://localhost:27017/hivepulse'),
-  jwtSecret: requireEnv('JWT_SECRET', 'dev-secret-change-in-production'),
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
-  corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
+  port: requirePort('PORT'),
+  mongoUri: requireEnv('MONGO_URI'),
+  corsOrigin: requireEnv('CORS_ORIGIN'),
+  apiPrefix: requireEnv('API_PREFIX'),
   isProduction: process.env.NODE_ENV === 'production',
 };
