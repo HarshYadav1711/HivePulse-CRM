@@ -1,6 +1,20 @@
-import type { USER_ROLES } from './constants';
+import type { LEAD_SOURCES, LEAD_STATUSES, USER_ROLES } from './constants';
 
 export type UserRole = (typeof USER_ROLES)[number];
+
+export type LeadStatus = (typeof LEAD_STATUSES)[number];
+
+export type LeadSource = (typeof LEAD_SOURCES)[number];
+
+export interface LeadPublic {
+  id: string;
+  name: string;
+  email: string;
+  status: LeadStatus;
+  source: LeadSource;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface UserPublic {
   id: string;
