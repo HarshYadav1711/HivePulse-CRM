@@ -1,3 +1,34 @@
+import type { USER_ROLES } from './constants';
+
+export type UserRole = (typeof USER_ROLES)[number];
+
+export interface UserPublic {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  roleLabel: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthTokens {
+  accessToken: string;
+  tokenType: 'Bearer';
+  expiresIn: string;
+}
+
+export interface AuthSession {
+  user: UserPublic;
+  tokens: AuthTokens;
+}
+
+/** Claims embedded in access tokens (JWT `sub` = user id). */
+export interface JwtPayload {
+  sub: string;
+  role: UserRole;
+}
+
 export interface PaginationMeta {
   page: number;
   limit: number;

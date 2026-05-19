@@ -20,11 +20,18 @@ function requirePort(key: string): number {
   return port;
 }
 
+function optionalEnv(key: string, fallback: string): string {
+  const value = process.env[key]?.trim();
+  return value && value.length > 0 ? value : fallback;
+}
+
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? 'development',
   port: requirePort('PORT'),
   mongoUri: requireEnv('MONGO_URI'),
   corsOrigin: requireEnv('CORS_ORIGIN'),
   apiPrefix: requireEnv('API_PREFIX'),
+  jwtSecret: requireEnv('JWT_SECRET'),
+  jwtExpiresIn: optionalEnv('JWT_EXPIRES_IN', '7d'),
   isProduction: process.env.NODE_ENV === 'production',
-};
+} as const;

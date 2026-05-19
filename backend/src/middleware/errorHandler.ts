@@ -39,6 +39,20 @@ export function errorHandler(
     return;
   }
 
+  if (isDuplicateKeyError(err)) {
+    sendError(res, 409, 'DUPLICATE_KEY', 'A record with this value already exists.');
+    return;
+  }
+
   console.error(err);
   sendError(res, 500, 'INTERNAL_ERROR', 'Something went wrong. Please try again.');
+}
+
+function isDuplicateKeyError(err: unknown): boolean {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'code' in err &&
+    (err as { code: number }).code === 11000
+  );
 }
